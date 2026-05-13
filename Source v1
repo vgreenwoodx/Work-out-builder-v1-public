@@ -1,0 +1,1889 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<title>Training Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,300;9..144,500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0b09;
+    --bg-2: #15130f;
+    --surface: #1c1a16;
+    --surface-2: #232019;
+    --surface-3: #2a2620;
+    --line: #2b271f;
+    --line-2: #3a3528;
+    --ink: #f4ede0;
+    --ink-dim: #a39e90;
+    --ink-mute: #6e6a5e;
+    --accent: #d4ff3a;
+    --accent-2: #ff6a3d;
+    --hot: #ff3a3a;
+    --radius: 14px;
+    --radius-sm: 10px;
+    --topbar-h: 60px;
+    --bottombar-h: 72px;
+  }
+
+- { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+  font-family: ‘DM Sans’, system-ui, sans-serif;
+  background: var(–bg);
+  color: var(–ink);
+  font-size: 15px;
+  line-height: 1.45;
+  overscroll-behavior: none;
+  background-image:
+  radial-gradient(ellipse 80% 60% at 0% 0%, rgba(212,255,58,0.04), transparent 60%),
+  radial-gradient(ellipse 60% 50% at 100% 100%, rgba(255,106,61,0.03), transparent 60%);
+  user-select: none;
+  -webkit-user-select: none;
+  }
+  button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+  input { font: inherit; color: inherit; background: none; border: none; outline: none; }
+  input::placeholder { color: var(–ink-mute); }
+
+.app {
+height: 100dvh;
+display: grid;
+grid-template-rows: var(–topbar-h) 1fr var(–bottombar-h);
+overflow: hidden;
+position: relative;
+}
+
+/* TOP BAR */
+.topbar {
+border-bottom: 1px solid var(–line);
+padding: 0 18px;
+display: flex;
+align-items: center;
+gap: 12px;
+background: var(–bg);
+z-index: 10;
+}
+.back-btn {
+width: 40px;
+height: 40px;
+border-radius: 50%;
+border: 1px solid var(–line);
+background: var(–surface);
+color: var(–ink);
+font-size: 18px;
+display: flex;
+align-items: center;
+justify-content: center;
+transition: all .15s;
+flex-shrink: 0;
+}
+.back-btn:active { transform: scale(0.92); }
+.back-btn.hidden { visibility: hidden; }
+.topbar-title {
+flex: 1;
+min-width: 0;
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 22px;
+letter-spacing: 0.06em;
+line-height: 1;
+display: flex;
+align-items: baseline;
+gap: 8px;
+}
+.topbar-title .dot { color: var(–accent); }
+.topbar-title .sub {
+font-family: ‘Fraunces’, serif;
+font-style: italic;
+font-weight: 300;
+font-size: 13px;
+color: var(–ink-dim);
+letter-spacing: 0.02em;
+}
+.mode-switch {
+display: flex;
+background: var(–surface);
+border: 1px solid var(–line);
+border-radius: 999px;
+padding: 3px;
+flex-shrink: 0;
+}
+.mode-switch button {
+padding: 6px 14px;
+border-radius: 999px;
+font-size: 11px;
+letter-spacing: 0.1em;
+text-transform: uppercase;
+color: var(–ink-dim);
+font-weight: 600;
+transition: all .2s;
+}
+.mode-switch button.active {
+background: var(–ink);
+color: var(–bg);
+}
+
+/* BOTTOM BAR */
+.bottombar {
+border-top: 1px solid var(–line);
+padding: 0 18px;
+display: flex;
+align-items: center;
+gap: 12px;
+background: var(–bg);
+z-index: 10;
+}
+.routine-pill {
+flex: 1;
+height: 48px;
+background: var(–surface);
+border: 1px solid var(–line);
+border-radius: 999px;
+display: flex;
+align-items: center;
+gap: 12px;
+padding: 0 18px 0 6px;
+transition: all .2s;
+}
+.routine-pill:active { transform: scale(0.99); }
+.routine-pill .badge {
+width: 36px;
+height: 36px;
+border-radius: 50%;
+background: var(–accent);
+color: #1a1a0a;
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 16px;
+display: flex;
+align-items: center;
+justify-content: center;
+flex-shrink: 0;
+}
+.routine-pill .badge.empty { background: var(–surface-3); color: var(–ink-mute); }
+.routine-pill .label {
+flex: 1;
+text-align: left;
+min-width: 0;
+}
+.routine-pill .label .name {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 17px;
+letter-spacing: 0.04em;
+line-height: 1;
+margin-bottom: 2px;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+}
+.routine-pill .label .meta {
+font-size: 11px;
+color: var(–ink-dim);
+letter-spacing: 0.04em;
+}
+.routine-pill .arrow {
+color: var(–ink-mute);
+font-size: 14px;
+}
+
+/* VIEW STAGE */
+.stage {
+position: relative;
+overflow: hidden;
+min-height: 0;
+}
+.view {
+position: absolute;
+inset: 0;
+overflow-y: auto;
+-webkit-overflow-scrolling: touch;
+transition: transform .35s cubic-bezier(.4,0,.2,1), opacity .25s;
+background: var(–bg);
+}
+.view::-webkit-scrollbar { width: 6px; }
+.view::-webkit-scrollbar-thumb { background: var(–line-2); border-radius: 3px; }
+.view.exit-left { transform: translateX(-30%); opacity: 0; pointer-events: none; }
+.view.enter-right { transform: translateX(100%); opacity: 0; }
+.view.exit-right { transform: translateX(30%); opacity: 0; pointer-events: none; }
+.view.enter-left { transform: translateX(-100%); opacity: 0; }
+
+/* HOME (BODY) VIEW */
+.body-stage {
+height: 100%;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+padding: 16px;
+perspective: 1200px;
+}
+.body-headline {
+text-align: center;
+margin-bottom: 8px;
+font-family: ‘Fraunces’, serif;
+font-style: italic;
+font-weight: 300;
+color: var(–ink-dim);
+font-size: 14px;
+letter-spacing: 0.02em;
+}
+.body-headline strong { color: var(–ink); font-weight: 500; font-style: normal; font-family: ‘Bebas Neue’, sans-serif; letter-spacing: 0.08em; font-size: 16px; }
+.body-rotator-wrap {
+flex: 1;
+display: flex;
+align-items: center;
+justify-content: center;
+width: 100%;
+position: relative;
+min-height: 0;
+}
+.body-rotator {
+width: min(280px, 60vh);
+height: min(560px, 90%);
+max-height: 100%;
+position: relative;
+transform-style: preserve-3d;
+transition: transform .5s cubic-bezier(.4,0,.2,1);
+touch-action: none;
+}
+.body-rotator.dragging { transition: none; }
+.body-face {
+position: absolute;
+inset: 0;
+backface-visibility: hidden;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+.body-face.back { transform: rotateY(180deg); }
+.body-face svg {
+width: 100%;
+height: 100%;
+display: block;
+}
+
+/* BODY SVG MUSCLES */
+.body-svg .muscle-outline {
+fill: var(–bg-2);
+stroke: var(–line-2);
+stroke-width: 0.8;
+}
+.body-svg .muscle {
+fill: var(–surface);
+stroke: var(–line-2);
+stroke-width: 0.5;
+transition: fill .35s ease, stroke .35s ease;
+pointer-events: none;
+}
+.body-svg .muscle.hit-1 { fill: rgba(212,255,58,0.22); stroke: rgba(212,255,58,0.4); }
+.body-svg .muscle.hit-2 { fill: rgba(212,255,58,0.5); stroke: rgba(212,255,58,0.65); }
+.body-svg .muscle.hit-3 { fill: var(–accent); stroke: var(–accent); }
+
+/* CLICKABLE REGION OVERLAYS */
+.body-svg .region {
+fill: rgba(255,255,255,0.001);
+stroke: rgba(212,255,58,0);
+stroke-width: 1.2;
+cursor: pointer;
+transition: fill .2s, stroke .2s;
+}
+.body-svg .region:hover,
+.body-svg .region.active {
+fill: rgba(212,255,58,0.08);
+stroke: rgba(212,255,58,0.6);
+}
+
+.body-controls {
+display: flex;
+gap: 8px;
+margin-top: 12px;
+align-items: center;
+}
+.face-btn {
+padding: 8px 16px;
+border-radius: 999px;
+border: 1px solid var(–line);
+background: var(–surface);
+color: var(–ink-dim);
+font-size: 11px;
+letter-spacing: 0.12em;
+text-transform: uppercase;
+font-weight: 600;
+transition: all .2s;
+}
+.face-btn.active {
+background: var(–ink);
+color: var(–bg);
+border-color: var(–ink);
+}
+.rotate-hint {
+font-size: 11px;
+color: var(–ink-mute);
+letter-spacing: 0.08em;
+text-transform: uppercase;
+margin-top: 8px;
+font-family: ‘Fraunces’, serif;
+font-style: italic;
+text-transform: none;
+letter-spacing: 0;
+font-size: 12px;
+}
+
+/* REGION VIEW */
+.region-view {
+padding: 20px;
+padding-bottom: 40px;
+}
+.region-intro {
+text-align: center;
+margin-bottom: 24px;
+padding: 0 8px;
+}
+.region-intro h1 {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 42px;
+letter-spacing: 0.06em;
+line-height: 1;
+margin-bottom: 6px;
+}
+.region-intro p {
+font-family: ‘Fraunces’, serif;
+font-style: italic;
+font-weight: 300;
+color: var(–ink-dim);
+font-size: 14px;
+}
+.muscle-tiles {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+gap: 12px;
+max-width: 720px;
+margin: 0 auto;
+}
+.muscle-tile {
+background: var(–surface);
+border: 1px solid var(–line);
+border-radius: var(–radius);
+padding: 16px;
+display: grid;
+grid-template-columns: 70px 1fr auto;
+align-items: center;
+gap: 14px;
+transition: all .2s;
+cursor: pointer;
+text-align: left;
+color: inherit;
+}
+.muscle-tile:active { transform: scale(0.99); }
+.muscle-tile:hover { border-color: var(–line-2); background: var(–surface-2); }
+.muscle-tile .thumb {
+width: 70px;
+height: 70px;
+background: var(–bg);
+border: 1px solid var(–line);
+border-radius: var(–radius-sm);
+display: flex;
+align-items: center;
+justify-content: center;
+}
+.muscle-tile .thumb svg {
+width: 100%;
+height: 100%;
+}
+.muscle-tile .info { min-width: 0; }
+.muscle-tile .info .name {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 22px;
+letter-spacing: 0.05em;
+line-height: 1.1;
+margin-bottom: 4px;
+}
+.muscle-tile .info .meta {
+font-size: 12px;
+color: var(–ink-dim);
+letter-spacing: 0.02em;
+}
+.muscle-tile .info .meta .added {
+color: var(–accent);
+font-weight: 600;
+}
+.muscle-tile .arrow {
+color: var(–ink-mute);
+font-size: 20px;
+padding: 0 4px;
+}
+
+/* MUSCLE / EXERCISE LIST VIEW */
+.muscle-view {
+padding: 20px;
+padding-bottom: 40px;
+}
+.muscle-intro {
+text-align: center;
+margin-bottom: 24px;
+}
+.muscle-intro h1 {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 42px;
+letter-spacing: 0.06em;
+line-height: 1;
+margin-bottom: 4px;
+}
+.muscle-intro .mode-tag {
+display: inline-flex;
+align-items: center;
+gap: 6px;
+padding: 4px 10px;
+background: var(–surface);
+border: 1px solid var(–line);
+border-radius: 999px;
+font-size: 11px;
+letter-spacing: 0.12em;
+text-transform: uppercase;
+color: var(–ink-dim);
+font-weight: 600;
+margin-top: 8px;
+}
+.muscle-intro .mode-tag .dot {
+width: 6px;
+height: 6px;
+border-radius: 50%;
+background: var(–accent);
+}
+.exercise-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+gap: 10px;
+max-width: 760px;
+margin: 0 auto;
+}
+.ex-card {
+background: var(–surface);
+border: 1px solid var(–line);
+border-radius: var(–radius);
+padding: 12px;
+display: grid;
+grid-template-columns: 76px 1fr auto;
+gap: 14px;
+align-items: center;
+transition: all .2s;
+cursor: pointer;
+text-align: left;
+}
+.ex-card:active { transform: scale(0.99); }
+.ex-card.added {
+background: var(–surface-2);
+border-color: var(–line-2);
+}
+.ex-card .thumb {
+width: 76px;
+height: 76px;
+background: var(–bg);
+border: 1px solid var(–line);
+border-radius: var(–radius-sm);
+display: flex;
+align-items: center;
+justify-content: center;
+flex-shrink: 0;
+}
+.ex-card .thumb svg { width: 100%; height: 100%; }
+.ex-card .body { min-width: 0; }
+.ex-card .body .name {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 20px;
+letter-spacing: 0.04em;
+line-height: 1.1;
+margin-bottom: 4px;
+}
+.ex-card.added .body .name { color: var(–accent); }
+.ex-card .body .desc {
+font-size: 13px;
+color: var(–ink-dim);
+line-height: 1.35;
+margin-bottom: 6px;
+}
+.ex-card .body .tags {
+display: flex;
+gap: 6px;
+flex-wrap: wrap;
+}
+.ex-card .body .tag {
+font-size: 10px;
+text-transform: uppercase;
+letter-spacing: 0.1em;
+color: var(–ink-mute);
+padding: 2px 8px;
+background: var(–bg);
+border-radius: 999px;
+border: 1px solid var(–line);
+font-weight: 500;
+}
+.ex-card .add-btn {
+width: 40px;
+height: 40px;
+border-radius: 50%;
+background: var(–bg);
+border: 1px solid var(–line-2);
+color: var(–ink-dim);
+font-size: 22px;
+line-height: 1;
+display: flex;
+align-items: center;
+justify-content: center;
+flex-shrink: 0;
+transition: all .2s;
+}
+.ex-card.added .add-btn {
+background: var(–accent);
+color: #1a1a0a;
+border-color: var(–accent);
+font-weight: 600;
+}
+
+.empty {
+padding: 60px 20px;
+text-align: center;
+color: var(–ink-mute);
+font-family: ‘Fraunces’, serif;
+font-style: italic;
+font-weight: 300;
+font-size: 15px;
+}
+
+/* ROUTINE DRAWER */
+.drawer-bg {
+position: fixed;
+inset: 0;
+background: rgba(0,0,0,0.6);
+backdrop-filter: blur(6px);
+opacity: 0;
+pointer-events: none;
+transition: opacity .3s;
+z-index: 50;
+}
+.drawer-bg.show { opacity: 1; pointer-events: auto; }
+.drawer {
+position: fixed;
+bottom: 0;
+left: 0;
+right: 0;
+max-height: 85vh;
+background: var(–bg-2);
+border-top: 1px solid var(–line);
+border-radius: 20px 20px 0 0;
+transform: translateY(100%);
+transition: transform .35s cubic-bezier(.4,0,.2,1);
+z-index: 60;
+display: flex;
+flex-direction: column;
+}
+.drawer.show { transform: translateY(0); }
+.drawer-handle {
+padding: 12px;
+display: flex;
+justify-content: center;
+cursor: grab;
+}
+.drawer-handle .bar {
+width: 44px;
+height: 4px;
+background: var(–line-2);
+border-radius: 2px;
+}
+.drawer-head {
+padding: 0 22px 14px;
+display: flex;
+align-items: center;
+gap: 12px;
+border-bottom: 1px solid var(–line);
+}
+.drawer-head h2 {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 24px;
+letter-spacing: 0.06em;
+line-height: 1;
+flex-shrink: 0;
+}
+.drawer-name-input {
+flex: 1;
+min-width: 0;
+padding: 8px 0;
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 18px;
+letter-spacing: 0.04em;
+color: var(–ink);
+border-bottom: 1px solid transparent;
+transition: border-color .2s;
+}
+.drawer-name-input:focus { border-bottom-color: var(–line-2); }
+.drawer-body {
+flex: 1;
+overflow-y: auto;
+-webkit-overflow-scrolling: touch;
+padding: 18px 22px 24px;
+}
+.drawer-body::-webkit-scrollbar { width: 6px; }
+.drawer-body::-webkit-scrollbar-thumb { background: var(–line-2); border-radius: 3px; }
+
+.stat-row {
+display: flex;
+gap: 8px;
+margin-bottom: 18px;
+}
+.stat-row .stat {
+flex: 1;
+padding: 12px 14px;
+background: var(–surface);
+border: 1px solid var(–line);
+border-radius: var(–radius-sm);
+}
+.stat .n {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 26px;
+line-height: 1;
+color: var(–accent);
+}
+.stat .l {
+font-size: 10.5px;
+text-transform: uppercase;
+letter-spacing: 0.12em;
+color: var(–ink-mute);
+margin-top: 4px;
+}
+
+.drawer h3 {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 16px;
+letter-spacing: 0.1em;
+color: var(–ink-dim);
+font-weight: 400;
+margin: 18px 0 10px;
+}
+.drawer h3:first-child { margin-top: 0; }
+
+.r-list { display: flex; flex-direction: column; gap: 6px; }
+.r-item {
+display: grid;
+grid-template-columns: 28px 1fr auto;
+gap: 10px;
+align-items: center;
+padding: 10px 12px;
+background: var(–surface);
+border: 1px solid var(–line);
+border-radius: var(–radius-sm);
+}
+.r-num {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 22px;
+color: var(–accent);
+line-height: 1;
+text-align: center;
+}
+.r-info { min-width: 0; }
+.r-name {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 17px;
+letter-spacing: 0.04em;
+line-height: 1.1;
+}
+.r-muscles {
+font-size: 11px;
+color: var(–ink-dim);
+margin-top: 2px;
+}
+.r-actions { display: flex; gap: 2px; }
+.r-btn {
+width: 32px;
+height: 32px;
+border-radius: var(–radius-sm);
+color: var(–ink-mute);
+font-size: 14px;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+.r-btn:active { background: var(–bg); color: var(–ink); }
+.r-btn.remove:active { color: var(–hot); }
+
+.drawer-actions {
+display: flex;
+gap: 8px;
+margin-top: 16px;
+}
+.btn {
+padding: 11px 18px;
+border-radius: var(–radius-sm);
+font-weight: 600;
+font-size: 13px;
+letter-spacing: 0.04em;
+background: var(–surface);
+border: 1px solid var(–line);
+transition: all .15s;
+}
+.btn:active { transform: scale(0.97); }
+.btn.primary {
+background: var(–accent);
+color: #1a1a0a;
+border-color: var(–accent);
+flex: 1;
+}
+.btn.primary:disabled { opacity: 0.35; }
+.btn.ghost { background: transparent; }
+.btn.danger { color: var(–hot); border-color: rgba(255,58,58,0.3); }
+
+.muscle-bars { display: flex; flex-direction: column; gap: 4px; }
+.m-row {
+display: grid;
+grid-template-columns: 100px 1fr 24px;
+gap: 10px;
+align-items: center;
+padding: 4px 0;
+}
+.m-row .name {
+font-size: 11.5px;
+text-transform: uppercase;
+letter-spacing: 0.08em;
+color: var(–ink-dim);
+}
+.m-row.hit .name { color: var(–ink); }
+.m-bar {
+height: 5px;
+background: var(–surface);
+border-radius: 3px;
+overflow: hidden;
+position: relative;
+}
+.m-bar-fill {
+position: absolute;
+inset: 0 auto 0 0;
+background: linear-gradient(90deg, var(–accent) 0%, var(–accent-2) 100%);
+border-radius: 3px;
+transition: width .35s cubic-bezier(.2,.8,.3,1);
+}
+.m-count {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 14px;
+color: var(–ink-dim);
+text-align: right;
+line-height: 1;
+}
+.m-row.hit .m-count { color: var(–accent); }
+
+.saved-list { display: flex; flex-direction: column; gap: 6px; }
+.saved-item {
+padding: 11px 14px;
+background: var(–surface);
+border: 1px solid var(–line);
+border-radius: var(–radius-sm);
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 10px;
+}
+.saved-info { min-width: 0; flex: 1; }
+.saved-name {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 16px;
+letter-spacing: 0.04em;
+line-height: 1.1;
+}
+.saved-meta {
+font-size: 11px;
+color: var(–ink-mute);
+margin-top: 3px;
+}
+
+/* TOAST */
+.toast {
+position: fixed;
+bottom: calc(var(–bottombar-h) + 16px);
+left: 50%;
+transform: translateX(-50%) translateY(20px);
+background: var(–ink);
+color: var(–bg);
+padding: 10px 18px;
+border-radius: 999px;
+font-size: 13px;
+font-weight: 500;
+letter-spacing: 0.02em;
+opacity: 0;
+pointer-events: none;
+transition: all .25s;
+z-index: 200;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* MODAL */
+.modal-bg {
+position: fixed;
+inset: 0;
+background: rgba(0,0,0,0.7);
+backdrop-filter: blur(6px);
+display: none;
+align-items: center;
+justify-content: center;
+z-index: 300;
+padding: 20px;
+}
+.modal-bg.show { display: flex; }
+.modal {
+background: var(–bg-2);
+border: 1px solid var(–line);
+border-radius: var(–radius);
+padding: 24px;
+max-width: 380px;
+width: 100%;
+}
+.modal h3 {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 22px;
+letter-spacing: 0.06em;
+margin-bottom: 8px;
+font-weight: 400;
+color: var(–ink);
+}
+.modal p {
+color: var(–ink-dim);
+font-size: 14px;
+margin-bottom: 18px;
+}
+.modal input {
+width: 100%;
+padding: 12px 14px;
+background: var(–surface);
+border: 1px solid var(–line);
+border-radius: var(–radius-sm);
+font-size: 15px;
+margin-bottom: 18px;
+}
+.modal input:focus { border-color: var(–accent); }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+@media (max-width: 600px) {
+.topbar-title .sub { display: none; }
+.body-rotator { width: min(220px, 70vw); }
+.exercise-grid, .muscle-tiles { grid-template-columns: 1fr; }
+}
+</style>
+
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <button class="back-btn hidden" id="backBtn">←</button>
+    <div class="topbar-title" id="topTitle">
+      <span>TRAINING<span class="dot">.</span></span>
+      <span class="sub">build a session</span>
+    </div>
+    <div class="mode-switch">
+      <button id="modeBuild" class="active">Build</button>
+      <button id="modeBrowse">Browse</button>
+    </div>
+  </div>
+
+  <div class="stage" id="stage">
+    <!-- Views injected here -->
+  </div>
+
+  <div class="bottombar">
+    <button class="routine-pill" id="routineBtn">
+      <span class="badge empty" id="routineBadge">0</span>
+      <span class="label">
+        <span class="name" id="routinePillName">Untitled Session</span>
+        <span class="meta" id="routinePillMeta">tap to view</span>
+      </span>
+      <span class="arrow">▲</span>
+    </button>
+  </div>
+</div>
+
+<!-- DRAWER -->
+
+<div class="drawer-bg" id="drawerBg"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-handle" id="drawerHandle">
+    <div class="bar"></div>
+  </div>
+  <div class="drawer-head">
+    <h2>SESSION</h2>
+    <input id="routineName" class="drawer-name-input" placeholder="Untitled Session" autocomplete="off">
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+</div>
+
+<!-- TOAST + MODAL -->
+
+<div class="toast" id="toast"></div>
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h3 id="modalTitle">Confirm</h3>
+    <p id="modalText"></p>
+    <input id="modalInput" style="display:none;" autocomplete="off">
+    <div class="modal-actions">
+      <button class="btn ghost" id="modalCancel">Cancel</button>
+      <button class="btn primary" id="modalOk" style="flex:0;">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============ DATA ============
+const ALL_MUSCLES = [
+  'Chest','Upper Back','Lats','Traps','Lower Back',
+  'Front Delts','Side Delts','Rear Delts',
+  'Biceps','Triceps','Forearms',
+  'Core','Obliques',
+  'Glutes','Quads','Hamstrings','Calves'
+];
+
+// Body regions (clickable areas on body model)
+const REGIONS = {
+  shoulders: { name: 'Shoulders', tagline: 'Caps and crowns. Press, raise, rotate.', muscles: ['Front Delts','Side Delts','Rear Delts'] },
+  chest:     { name: 'Chest', tagline: 'Press it. Stretch it. Build the plate.', muscles: ['Chest'] },
+  arms:      { name: 'Arms', tagline: 'Sleeve fillers. Curls, extensions, grip.', muscles: ['Biceps','Triceps','Forearms'] },
+  back:      { name: 'Back', tagline: 'Width, thickness, posture. Pull everything.', muscles: ['Upper Back','Lats','Traps','Lower Back'] },
+  core:      { name: 'Core', tagline: 'Center of gravity. Brace and rotate.', muscles: ['Core','Obliques'] },
+  legs:      { name: 'Legs', tagline: 'The engine room. Squat, hinge, drive.', muscles: ['Quads','Hamstrings','Glutes','Calves'] },
+};
+
+const MUSCLE_TAGLINES = {
+  'Chest': 'The pec plate. Pushing strength and shape.',
+  'Upper Back': 'Rhomboids and mid traps. Posture and thickness.',
+  'Lats': 'Wings. Width, V-taper, pulldown power.',
+  'Traps': 'Yoke. Upper back density and shrug force.',
+  'Lower Back': 'Erectors. Spinal stability and hinge power.',
+  'Front Delts': 'Anterior cap. Pressing and front raises.',
+  'Side Delts': 'Lateral cap. The 3D shoulder shape.',
+  'Rear Delts': 'Posterior cap. Posture and shoulder health.',
+  'Biceps': 'Front of the upper arm. Curls and chin-ups.',
+  'Triceps': 'Back of the upper arm. The size-maker.',
+  'Forearms': 'Grip and lower arm thickness.',
+  'Core': 'Abs and deep stabilizers. Brace, flex, hold.',
+  'Obliques': 'Side of the trunk. Rotation and anti-rotation.',
+  'Glutes': 'Hip drive. The strongest muscle group.',
+  'Quads': 'Front of the thigh. Squats and extensions.',
+  'Hamstrings': 'Back of the thigh. Hinges and curls.',
+  'Calves': 'Lower leg. The stubborn ones.',
+};
+
+// EXERCISES - each has curatedFor (list of muscle groups it's curated for)
+const EXERCISES = [
+  // CHEST
+  { id:'bench-press', name:'Bench Press', desc:'Classic horizontal press. The benchmark for upper body strength.', primary:['Chest'], secondary:['Triceps','Front Delts'], equip:'Barbell', curatedFor:['Chest'] },
+  { id:'incline-bench', name:'Incline Bench Press', desc:'Angled press emphasizing the upper chest and front delts.', primary:['Chest','Front Delts'], secondary:['Triceps'], equip:'Barbell', curatedFor:['Chest','Front Delts'] },
+  { id:'db-press', name:'Dumbbell Press', desc:'Free-weight chest press with a deeper stretch than barbell.', primary:['Chest'], secondary:['Triceps','Front Delts'], equip:'Dumbbell', curatedFor:['Chest'] },
+  { id:'incline-db-press', name:'Incline Dumbbell Press', desc:'Upper chest builder with full range of motion.', primary:['Chest','Front Delts'], secondary:['Triceps'], equip:'Dumbbell', curatedFor:[] },
+  { id:'decline-bench', name:'Decline Bench Press', desc:'Targets the lower chest with a shorter range of motion.', primary:['Chest'], secondary:['Triceps'], equip:'Barbell', curatedFor:[] },
+  { id:'db-fly', name:'Dumbbell Fly', desc:'Isolation move that stretches and contracts the pecs.', primary:['Chest'], secondary:[], equip:'Dumbbell', curatedFor:[] },
+  { id:'cable-fly', name:'Cable Fly', desc:'Constant tension chest isolation. Squeeze at the bottom.', primary:['Chest'], secondary:[], equip:'Cable', curatedFor:['Chest'] },
+  { id:'pec-deck', name:'Pec Deck', desc:'Machine fly with a controlled path. Pure chest contraction.', primary:['Chest'], secondary:[], equip:'Machine', curatedFor:[] },
+  { id:'pushup', name:'Push-Up', desc:'Bodyweight foundation. Chest, shoulders, triceps, core.', primary:['Chest'], secondary:['Triceps','Front Delts','Core'], equip:'Bodyweight', curatedFor:['Chest'] },
+  { id:'dip', name:'Dip', desc:'Lean forward for chest emphasis, upright for triceps.', primary:['Chest','Triceps'], secondary:['Front Delts'], equip:'Bodyweight', curatedFor:['Triceps'] },
+  { id:'svend-press', name:'Svend Press', desc:'Plate squeeze press. Inner chest contraction work.', primary:['Chest'], secondary:[], equip:'Other', curatedFor:[] },
+
+  // BACK
+  { id:'pullup', name:'Pull-Up', desc:'Overhand bodyweight pull. King of vertical pulling.', primary:['Lats'], secondary:['Biceps','Upper Back','Forearms'], equip:'Bodyweight', curatedFor:['Lats'] },
+  { id:'chinup', name:'Chin-Up', desc:'Underhand pull. Hits biceps and lats together.', primary:['Lats','Biceps'], secondary:['Upper Back','Forearms'], equip:'Bodyweight', curatedFor:['Lats','Biceps'] },
+  { id:'lat-pulldown', name:'Lat Pulldown', desc:'Cable simulation of the pull-up. Width builder.', primary:['Lats'], secondary:['Biceps','Upper Back'], equip:'Cable', curatedFor:['Lats','Upper Back'] },
+  { id:'barbell-row', name:'Barbell Row', desc:'Bent-over horizontal pull. Thickness for the upper back.', primary:['Upper Back','Lats'], secondary:['Biceps','Rear Delts','Lower Back'], equip:'Barbell', curatedFor:['Upper Back','Traps'] },
+  { id:'db-row', name:'Dumbbell Row', desc:'Single-arm row. Unilateral back work with a long ROM.', primary:['Upper Back','Lats'], secondary:['Biceps','Rear Delts'], equip:'Dumbbell', curatedFor:['Upper Back','Lats'] },
+  { id:'tbar-row', name:'T-Bar Row', desc:'Chest-supported variation. Heavy without lower back strain.', primary:['Upper Back'], secondary:['Lats','Biceps'], equip:'Barbell', curatedFor:[] },
+  { id:'cable-row', name:'Seated Cable Row', desc:'Smooth, controlled rowing. Mid-back focused.', primary:['Upper Back'], secondary:['Lats','Biceps'], equip:'Cable', curatedFor:['Upper Back'] },
+  { id:'deadlift', name:'Deadlift', desc:'Pick the bar up off the floor. Total posterior chain.', primary:['Lower Back','Glutes','Hamstrings'], secondary:['Lats','Traps','Core','Forearms'], equip:'Barbell', curatedFor:['Lower Back','Traps'] },
+  { id:'face-pull', name:'Face Pull', desc:'High-cable pull to the forehead. Posture saver.', primary:['Rear Delts'], secondary:['Upper Back','Traps'], equip:'Cable', curatedFor:['Rear Delts','Upper Back','Traps'] },
+  { id:'shrug', name:'Shrug', desc:'Pure trap isolation. Lift the shoulders straight up.', primary:['Traps'], secondary:['Forearms'], equip:'Dumbbell', curatedFor:['Traps'] },
+  { id:'back-ext', name:'Back Extension', desc:'Bend over and extend back up. Lower back endurance.', primary:['Lower Back'], secondary:['Glutes','Hamstrings'], equip:'Bodyweight', curatedFor:['Lower Back'] },
+  { id:'good-morning', name:'Good Morning', desc:'Hip hinge with a bar on your back. Hams and lower back.', primary:['Lower Back','Hamstrings'], secondary:['Glutes'], equip:'Barbell', curatedFor:['Lower Back','Hamstrings'] },
+  { id:'pendlay-row', name:'Pendlay Row', desc:'Explosive row from the floor. Strict and powerful.', primary:['Upper Back','Lats'], secondary:['Biceps'], equip:'Barbell', curatedFor:[] },
+  { id:'meadows-row', name:'Meadows Row', desc:'Landmine single-arm row. Unique angle for the lats.', primary:['Lats','Upper Back'], secondary:['Biceps'], equip:'Barbell', curatedFor:[] },
+  { id:'pullover', name:'Dumbbell Pullover', desc:'Overhead arc that stretches the lats and chest.', primary:['Lats'], secondary:['Chest'], equip:'Dumbbell', curatedFor:[] },
+  { id:'reverse-fly', name:'Reverse Fly', desc:'Bent-over rear delt isolation.', primary:['Rear Delts'], secondary:['Upper Back'], equip:'Dumbbell', curatedFor:['Rear Delts'] },
+  { id:'rev-pec-deck', name:'Reverse Pec Deck', desc:'Machine reverse fly. Rear delts in pure isolation.', primary:['Rear Delts'], secondary:['Upper Back'], equip:'Machine', curatedFor:['Rear Delts'] },
+
+  // SHOULDERS
+  { id:'ohp', name:'Overhead Press', desc:'Standing barbell press overhead. The shoulder king.', primary:['Front Delts','Side Delts'], secondary:['Triceps','Core'], equip:'Barbell', curatedFor:['Front Delts','Side Delts'] },
+  { id:'db-shoulder-press', name:'Dumbbell Shoulder Press', desc:'Seated or standing press. More ROM, less pinning.', primary:['Front Delts','Side Delts'], secondary:['Triceps'], equip:'Dumbbell', curatedFor:['Front Delts','Side Delts'] },
+  { id:'lateral-raise', name:'Lateral Raise', desc:'Arms out to the sides. The 3D shoulder builder.', primary:['Side Delts'], secondary:[], equip:'Dumbbell', curatedFor:['Side Delts'] },
+  { id:'front-raise', name:'Front Raise', desc:'Lift in front of you. Direct front delt work.', primary:['Front Delts'], secondary:[], equip:'Dumbbell', curatedFor:['Front Delts'] },
+  { id:'arnold-press', name:'Arnold Press', desc:'Rotating press that hits all three delt heads.', primary:['Front Delts','Side Delts'], secondary:['Triceps'], equip:'Dumbbell', curatedFor:['Front Delts'] },
+  { id:'upright-row', name:'Upright Row', desc:'Pull the bar up to your chin. Side delts and traps.', primary:['Side Delts','Traps'], secondary:['Biceps'], equip:'Barbell', curatedFor:['Side Delts','Traps'] },
+  { id:'handstand-pu', name:'Handstand Push-Up', desc:'Bodyweight overhead press. Advanced shoulder strength.', primary:['Front Delts','Side Delts'], secondary:['Triceps','Core'], equip:'Bodyweight', curatedFor:[] },
+  { id:'cable-lateral', name:'Cable Lateral Raise', desc:'Lateral raise with constant tension at the bottom.', primary:['Side Delts'], secondary:[], equip:'Cable', curatedFor:[] },
+  { id:'machine-press', name:'Machine Shoulder Press', desc:'Fixed-path press. Lets you push hard with less stabilization.', primary:['Front Delts','Side Delts'], secondary:['Triceps'], equip:'Machine', curatedFor:[] },
+
+  // ARMS - BICEPS
+  { id:'barbell-curl', name:'Barbell Curl', desc:'Standing two-handed curl. Mass builder.', primary:['Biceps'], secondary:['Forearms'], equip:'Barbell', curatedFor:['Biceps'] },
+  { id:'db-curl', name:'Dumbbell Curl', desc:'Alternating or together. Bicep classic.', primary:['Biceps'], secondary:['Forearms'], equip:'Dumbbell', curatedFor:['Biceps'] },
+  { id:'hammer-curl', name:'Hammer Curl', desc:'Neutral grip. Builds biceps and forearms together.', primary:['Biceps','Forearms'], secondary:[], equip:'Dumbbell', curatedFor:['Biceps','Forearms'] },
+  { id:'preacher-curl', name:'Preacher Curl', desc:'Curl with arms supported. Strict and brutal.', primary:['Biceps'], secondary:[], equip:'Barbell', curatedFor:['Biceps'] },
+  { id:'concentration-curl', name:'Concentration Curl', desc:'Seated one-arm curl. Peak contraction work.', primary:['Biceps'], secondary:[], equip:'Dumbbell', curatedFor:[] },
+  { id:'cable-curl', name:'Cable Curl', desc:'Continuous tension throughout the curl.', primary:['Biceps'], secondary:[], equip:'Cable', curatedFor:[] },
+  { id:'incline-curl', name:'Incline Dumbbell Curl', desc:'Curl with arms behind the body. Long-head emphasis.', primary:['Biceps'], secondary:[], equip:'Dumbbell', curatedFor:[] },
+  { id:'spider-curl', name:'Spider Curl', desc:'Chest-supported strict curl. No cheating possible.', primary:['Biceps'], secondary:[], equip:'Dumbbell', curatedFor:[] },
+
+  // ARMS - TRICEPS
+  { id:'tricep-pushdown', name:'Tricep Pushdown', desc:'Cable extension. The most-used tricep move.', primary:['Triceps'], secondary:[], equip:'Cable', curatedFor:['Triceps'] },
+  { id:'skull-crusher', name:'Skull Crusher', desc:'Lying tricep extension. Long-head mass builder.', primary:['Triceps'], secondary:[], equip:'Barbell', curatedFor:['Triceps'] },
+  { id:'overhead-tricep', name:'Overhead Tricep Extension', desc:'Overhead position stretches the long head.', primary:['Triceps'], secondary:[], equip:'Dumbbell', curatedFor:['Triceps'] },
+  { id:'close-grip-bench', name:'Close-Grip Bench', desc:'Narrow grip bench. Compound tricep press.', primary:['Triceps'], secondary:['Chest','Front Delts'], equip:'Barbell', curatedFor:['Triceps'] },
+  { id:'diamond-pushup', name:'Diamond Push-Up', desc:'Hands together push-up. Tricep bodyweight standard.', primary:['Triceps'], secondary:['Chest'], equip:'Bodyweight', curatedFor:[] },
+  { id:'rope-pushdown', name:'Rope Pushdown', desc:'Pushdown with rope. Spread at the bottom for max contraction.', primary:['Triceps'], secondary:[], equip:'Cable', curatedFor:[] },
+  { id:'kickback', name:'Tricep Kickback', desc:'Bent-over arm extension. Isolation and contraction.', primary:['Triceps'], secondary:[], equip:'Dumbbell', curatedFor:[] },
+
+  // ARMS - FOREARMS
+  { id:'wrist-curl', name:'Wrist Curl', desc:'Forearm flexor isolation. Small range, high reps.', primary:['Forearms'], secondary:[], equip:'Dumbbell', curatedFor:['Forearms'] },
+  { id:'reverse-curl', name:'Reverse Curl', desc:'Overhand curl. Hits the brachioradialis hard.', primary:['Forearms','Biceps'], secondary:[], equip:'Barbell', curatedFor:['Forearms'] },
+  { id:'farmer-walk', name:'Farmer\u2019s Walk', desc:'Heavy carry. Grip, traps, and full-body brace.', primary:['Forearms','Traps','Core'], secondary:['Glutes','Quads'], equip:'Dumbbell', curatedFor:['Forearms','Traps'] },
+  { id:'dead-hang', name:'Dead Hang', desc:'Just hang from the bar. Grip endurance and shoulders.', primary:['Forearms'], secondary:['Lats'], equip:'Bodyweight', curatedFor:['Forearms'] },
+  { id:'plate-pinch', name:'Plate Pinch', desc:'Pinch and hold a plate. Crushing grip strength.', primary:['Forearms'], secondary:[], equip:'Other', curatedFor:[] },
+
+  // LEGS - QUADS
+  { id:'back-squat', name:'Back Squat', desc:'Bar on the back, drop and drive. The leg king.', primary:['Quads','Glutes'], secondary:['Hamstrings','Core','Lower Back'], equip:'Barbell', curatedFor:['Quads','Glutes'] },
+  { id:'front-squat', name:'Front Squat', desc:'Bar on the front. Quad-dominant and upright.', primary:['Quads'], secondary:['Glutes','Core'], equip:'Barbell', curatedFor:['Quads'] },
+  { id:'leg-press', name:'Leg Press', desc:'Machine squat pattern. Lots of weight, no balancing.', primary:['Quads','Glutes'], secondary:['Hamstrings'], equip:'Machine', curatedFor:['Quads'] },
+  { id:'lunge', name:'Walking Lunge', desc:'Step and sink. Unilateral leg work that humbles you.', primary:['Quads','Glutes'], secondary:['Hamstrings','Core'], equip:'Dumbbell', curatedFor:['Quads','Glutes'] },
+  { id:'leg-extension', name:'Leg Extension', desc:'Machine quad isolation. Pump the rectus femoris.', primary:['Quads'], secondary:[], equip:'Machine', curatedFor:['Quads'] },
+  { id:'goblet-squat', name:'Goblet Squat', desc:'Hold a single weight at your chest and squat.', primary:['Quads','Glutes'], secondary:['Core'], equip:'Dumbbell', curatedFor:[] },
+  { id:'hack-squat', name:'Hack Squat', desc:'Machine squat at an angle. Heavy quad work.', primary:['Quads','Glutes'], secondary:[], equip:'Machine', curatedFor:[] },
+  { id:'sissy-squat', name:'Sissy Squat', desc:'Lean back as you bend the knees. Pure quad stretch.', primary:['Quads'], secondary:[], equip:'Bodyweight', curatedFor:[] },
+
+  // LEGS - HAMSTRINGS
+  { id:'rdl', name:'Romanian Deadlift', desc:'Hip hinge with slight knee bend. Hamstring stretch and load.', primary:['Hamstrings','Glutes'], secondary:['Lower Back'], equip:'Barbell', curatedFor:['Hamstrings','Glutes'] },
+  { id:'leg-curl', name:'Leg Curl', desc:'Machine hamstring isolation. Seated or lying.', primary:['Hamstrings'], secondary:[], equip:'Machine', curatedFor:['Hamstrings'] },
+  { id:'stiff-leg-dl', name:'Stiff-Leg Deadlift', desc:'Hinge with locked knees. Maximum hamstring stretch.', primary:['Hamstrings','Lower Back'], secondary:['Glutes'], equip:'Barbell', curatedFor:['Hamstrings'] },
+  { id:'ghr', name:'Glute-Ham Raise', desc:'Bodyweight hamstring curl on a GHD bench. Brutal.', primary:['Hamstrings'], secondary:['Glutes','Lower Back'], equip:'Bodyweight', curatedFor:['Hamstrings'] },
+  { id:'nordic-curl', name:'Nordic Curl', desc:'Kneeling slow descent. Eccentric hamstring strength.', primary:['Hamstrings'], secondary:[], equip:'Bodyweight', curatedFor:[] },
+
+  // LEGS - GLUTES
+  { id:'hip-thrust', name:'Hip Thrust', desc:'Bar across the hips, drive them up. Glute specialist.', primary:['Glutes'], secondary:['Hamstrings'], equip:'Barbell', curatedFor:['Glutes'] },
+  { id:'bulgarian-split', name:'Bulgarian Split Squat', desc:'Rear-foot-elevated squat. Glute and quad punisher.', primary:['Quads','Glutes'], secondary:['Hamstrings'], equip:'Dumbbell', curatedFor:['Glutes','Quads'] },
+  { id:'glute-bridge', name:'Glute Bridge', desc:'Floor bridge variant. Light but high-rep activation.', primary:['Glutes'], secondary:['Hamstrings'], equip:'Bodyweight', curatedFor:['Glutes'] },
+  { id:'cable-kickback', name:'Cable Kickback', desc:'Single-leg glute isolation with a cable.', primary:['Glutes'], secondary:[], equip:'Cable', curatedFor:[] },
+  { id:'step-up', name:'Step-Up', desc:'Step onto a box and drive up. Unilateral leg power.', primary:['Quads','Glutes'], secondary:['Hamstrings'], equip:'Dumbbell', curatedFor:[] },
+
+  // LEGS - CALVES
+  { id:'calf-raise', name:'Standing Calf Raise', desc:'Up on the balls of your feet. Gastrocnemius focus.', primary:['Calves'], secondary:[], equip:'Dumbbell', curatedFor:['Calves'] },
+  { id:'seated-calf', name:'Seated Calf Raise', desc:'Knees bent calf raise. Soleus emphasis.', primary:['Calves'], secondary:[], equip:'Machine', curatedFor:['Calves'] },
+  { id:'donkey-calf', name:'Donkey Calf Raise', desc:'Bent-over calf raise. Old-school stretch position.', primary:['Calves'], secondary:[], equip:'Machine', curatedFor:['Calves'] },
+  { id:'single-calf', name:'Single-Leg Calf Raise', desc:'One leg at a time. Balance, control, and full ROM.', primary:['Calves'], secondary:[], equip:'Bodyweight', curatedFor:['Calves'] },
+  { id:'calf-press', name:'Calf Press', desc:'Calf raise on the leg press machine.', primary:['Calves'], secondary:[], equip:'Machine', curatedFor:['Calves'] },
+
+  // CORE
+  { id:'plank', name:'Plank', desc:'Hold the top of a push-up. Total core endurance.', primary:['Core'], secondary:[], equip:'Bodyweight', curatedFor:['Core'] },
+  { id:'side-plank', name:'Side Plank', desc:'Hold on one elbow. Anti-lateral-flexion strength.', primary:['Obliques','Core'], secondary:[], equip:'Bodyweight', curatedFor:['Obliques'] },
+  { id:'crunch', name:'Crunch', desc:'Floor flexion. Simple and direct ab contraction.', primary:['Core'], secondary:[], equip:'Bodyweight', curatedFor:[] },
+  { id:'leg-raise', name:'Hanging Leg Raise', desc:'Hang from a bar and lift the legs. Lower ab specialist.', primary:['Core'], secondary:[], equip:'Bodyweight', curatedFor:['Core'] },
+  { id:'ab-wheel', name:'Ab Wheel Rollout', desc:'Roll out and back in. Total core under stretch.', primary:['Core'], secondary:['Lats'], equip:'Other', curatedFor:['Core'] },
+  { id:'cable-crunch', name:'Cable Crunch', desc:'Kneeling cable flexion. Loadable ab work.', primary:['Core'], secondary:[], equip:'Cable', curatedFor:['Core'] },
+  { id:'dead-bug', name:'Dead Bug', desc:'Opposite arm and leg from your back. Anti-extension core.', primary:['Core'], secondary:[], equip:'Bodyweight', curatedFor:[] },
+  { id:'russian-twist', name:'Russian Twist', desc:'Seated rotation with a weight. Oblique rotation work.', primary:['Obliques','Core'], secondary:[], equip:'Bodyweight', curatedFor:['Obliques'] },
+  { id:'pallof', name:'Pallof Press', desc:'Press a cable straight out. Anti-rotation core.', primary:['Core','Obliques'], secondary:[], equip:'Cable', curatedFor:['Obliques','Core'] },
+  { id:'wood-chop', name:'Cable Wood Chop', desc:'Rotational chop across the body. Power and obliques.', primary:['Obliques'], secondary:['Core'], equip:'Cable', curatedFor:['Obliques'] },
+  { id:'side-bend', name:'Dumbbell Side Bend', desc:'Side flexion with a single weight. Oblique focus.', primary:['Obliques'], secondary:[], equip:'Dumbbell', curatedFor:['Obliques'] },
+  { id:'hollow-hold', name:'Hollow Hold', desc:'Lie on your back, lift everything. Iron core hold.', primary:['Core'], secondary:[], equip:'Bodyweight', curatedFor:[] },
+  { id:'mountain-climber', name:'Mountain Climber', desc:'Plank with running knees. Core plus cardio.', primary:['Core'], secondary:['Quads'], equip:'Bodyweight', curatedFor:[] },
+];
+
+const CATEGORIES = ['All','Chest','Back','Shoulders','Arms','Legs','Core','Full Body'];
+
+// Body SVG paths - shared between full body and mini thumbnails
+const BODY_PATHS = {
+  silhouette: 'M 50 8 C 56 8 60 13 60 19 C 60 24 58 27 55 29 L 56 35 C 62 36 70 39 75 44 C 78 47 79 51 79 57 L 81 72 C 81 78 80 82 78 86 L 76 90 C 75 88 74 86 73 84 L 73 100 L 76 130 C 76 140 74 146 73 152 L 70 175 C 70 182 67 192 65 195 C 63 196 60 196 58 195 L 56 178 L 54 150 L 52 130 L 50 130 L 48 130 L 46 150 L 44 178 L 42 195 C 40 196 37 196 35 195 C 33 192 30 182 30 175 L 27 152 C 26 146 24 140 24 130 L 27 100 L 27 84 C 26 86 25 88 24 90 L 22 86 C 20 82 19 78 19 72 L 21 57 C 21 51 22 47 25 44 C 30 39 38 36 44 35 L 45 29 C 42 27 40 24 40 19 C 40 13 44 8 50 8 Z',
+  front: {
+    'Front Delts L': 'M 27 41 C 24 43 22 47 22 51 L 22 57 C 25 56 28 54 30 52 L 31 44 C 30 43 28 42 27 41 Z',
+    'Front Delts R': 'M 73 41 C 76 43 78 47 78 51 L 78 57 C 75 56 72 54 70 52 L 69 44 C 70 43 72 42 73 41 Z',
+    'Side Delts L': 'M 22 51 L 22 65 C 21 66 20 70 20 72 L 22 76 C 24 70 26 64 26 58 Z',
+    'Side Delts R': 'M 78 51 L 78 65 C 79 66 80 70 80 72 L 78 76 C 76 70 74 64 74 58 Z',
+    'Chest L': 'M 30 44 C 36 41 42 39 49 39 L 49 57 C 49 60 47 62 44 63 L 36 62 C 33 61 31 59 30 56 Z',
+    'Chest R': 'M 70 44 C 64 41 58 39 51 39 L 51 57 C 51 60 53 62 56 63 L 64 62 C 67 61 69 59 70 56 Z',
+    'Biceps L': 'M 21 65 C 20 71 20 77 21 83 L 19 90 C 18 91 17 91 16 90 L 17 78 C 17 73 18 68 20 65 Z',
+    'Biceps R': 'M 79 65 C 80 71 80 77 79 83 L 81 90 C 82 91 83 91 84 90 L 83 78 C 83 73 82 68 80 65 Z',
+    'Forearms L': 'M 16 91 C 16 95 16 100 17 105 L 18 110 C 19 110 20 109 20 108 L 19 99 C 19 95 19 92 19 91 Z',
+    'Forearms R': 'M 84 91 C 84 95 84 100 83 105 L 82 110 C 81 110 80 109 80 108 L 81 99 C 81 95 81 92 81 91 Z',
+    'Core': 'M 42 64 L 58 64 L 59 88 C 59 92 57 95 54 96 L 46 96 C 43 95 41 92 41 88 Z',
+    'Obliques L': 'M 35 68 L 41 67 L 41 92 L 37 91 C 35 90 33 87 33 84 Z',
+    'Obliques R': 'M 65 68 L 59 67 L 59 92 L 63 91 C 65 90 67 87 67 84 Z',
+    'Quads L': 'M 36 102 C 38 100 42 99 46 99 L 47 102 L 47 145 C 46 148 45 150 43 150 L 38 149 C 36 148 34 145 33 140 L 33 115 C 33 110 34 105 36 102 Z',
+    'Quads R': 'M 64 102 C 62 100 58 99 54 99 L 53 102 L 53 145 C 54 148 55 150 57 150 L 62 149 C 64 148 66 145 67 140 L 67 115 C 67 110 66 105 64 102 Z',
+    'Calves L': 'M 35 155 C 35 160 35 168 36 174 L 37 178 C 35 179 33 178 32 175 L 31 165 C 31 161 32 157 33 155 Z',
+    'Calves R': 'M 65 155 C 65 160 65 168 64 174 L 63 178 C 65 179 67 178 68 175 L 69 165 C 69 161 68 157 67 155 Z',
+  },
+  back: {
+    'Traps': 'M 43 33 C 46 32 49 31 50 31 C 51 31 54 32 57 33 L 60 45 C 58 47 54 48 50 48 C 46 48 42 47 40 45 Z',
+    'Rear Delts L': 'M 27 41 C 24 43 22 47 22 51 L 22 58 C 26 56 30 53 33 50 L 32 44 C 30 43 28 42 27 41 Z',
+    'Rear Delts R': 'M 73 41 C 76 43 78 47 78 51 L 78 58 C 74 56 70 53 67 50 L 68 44 C 70 43 72 42 73 41 Z',
+    'Upper Back': 'M 39 47 L 61 47 L 63 60 C 62 64 58 67 54 68 L 46 68 C 42 67 38 64 37 60 Z',
+    'Lats L': 'M 30 55 C 28 58 27 62 27 67 L 30 88 C 32 89 35 87 36 84 L 38 70 C 38 65 36 60 33 56 Z',
+    'Lats R': 'M 70 55 C 72 58 73 62 73 67 L 70 88 C 68 89 65 87 64 84 L 62 70 C 62 65 64 60 67 56 Z',
+    'Lower Back': 'M 42 76 L 58 76 L 58 96 C 57 98 54 99 50 99 C 46 99 43 98 42 96 Z',
+    'Triceps L': 'M 21 60 C 19 65 18 72 18 80 L 19 90 C 20 91 22 90 22 88 L 23 78 C 23 71 24 65 25 61 Z',
+    'Triceps R': 'M 79 60 C 81 65 82 72 82 80 L 81 90 C 80 91 78 90 78 88 L 77 78 C 77 71 76 65 75 61 Z',
+    'Forearms L': 'M 16 91 C 16 95 16 100 17 105 L 18 110 C 19 110 20 109 20 108 L 19 99 C 19 95 19 92 19 91 Z',
+    'Forearms R': 'M 84 91 C 84 95 84 100 83 105 L 82 110 C 81 110 80 109 80 108 L 81 99 C 81 95 81 92 81 91 Z',
+    'Glutes L': 'M 30 100 C 33 100 40 101 45 102 L 48 115 C 47 119 44 122 40 122 L 33 121 C 30 119 28 115 28 110 Z',
+    'Glutes R': 'M 70 100 C 67 100 60 101 55 102 L 52 115 C 53 119 56 122 60 122 L 67 121 C 70 119 72 115 72 110 Z',
+    'Hamstrings L': 'M 33 124 L 46 124 L 47 145 C 46 148 45 150 43 150 L 37 149 C 35 148 33 145 33 140 Z',
+    'Hamstrings R': 'M 67 124 L 54 124 L 53 145 C 54 148 55 150 57 150 L 63 149 C 65 148 67 145 67 140 Z',
+    'Calves L': 'M 36 154 C 38 152 42 152 44 154 L 45 168 C 44 174 42 178 39 178 C 36 178 34 174 33 168 Z',
+    'Calves R': 'M 64 154 C 62 152 58 152 56 154 L 55 168 C 56 174 58 178 61 178 C 64 178 66 174 67 168 Z',
+  },
+};
+
+// Clickable region overlays on body - rough hit-areas that map to a Region key
+const FRONT_REGIONS = {
+  shoulders: 'M 20 39 L 32 39 L 33 52 L 22 56 L 19 55 Z M 68 39 L 80 39 L 81 55 L 78 56 L 67 52 Z',
+  chest:     'M 30 41 L 70 41 L 70 64 L 55 66 L 45 66 L 30 64 Z',
+  arms:      'M 14 65 L 26 60 L 27 112 L 14 112 Z M 86 65 L 74 60 L 73 112 L 86 112 Z',
+  core:      'M 32 65 L 68 65 L 68 98 L 32 98 Z',
+  legs:      'M 30 99 L 70 99 L 70 180 L 30 180 Z',
+};
+const BACK_REGIONS = {
+  shoulders: 'M 20 39 L 33 39 L 35 56 L 22 56 L 19 55 Z M 67 39 L 80 39 L 81 55 L 78 56 L 65 56 Z',
+  back:      'M 30 41 L 70 41 L 70 97 L 30 97 Z',
+  arms:      'M 14 65 L 26 60 L 27 112 L 14 112 Z M 86 65 L 74 60 L 73 112 L 86 112 Z',
+  legs:      'M 26 99 L 74 99 L 74 180 L 26 180 Z',
+};
+
+// ============ STATE ============
+let state = {
+  routineName: '',
+  routine: [],            // array of exercise ids
+  saved: [],              // saved sessions
+  mode: 'build',          // 'build' | 'browse'
+  nav: [{ view: 'home' }],// nav stack
+  bodyAngle: 0,           // current rotation deg (0 or 180)
+  drawerOpen: false,
+};
+
+// ============ STORAGE (localStorage version) ============
+const STORAGE_PREFIX = 'training:';
+function lsGet(key) {
+  try { return localStorage.getItem(STORAGE_PREFIX + key); } catch(e) { return null; }
+}
+function lsSet(key, value) {
+  try { localStorage.setItem(STORAGE_PREFIX + key, value); } catch(e) {}
+}
+async function loadState() {
+  try {
+    const cur = lsGet('current');
+    if (cur) {
+      const p = JSON.parse(cur);
+      state.routineName = p.routineName || '';
+      state.routine = p.routine || [];
+    }
+  } catch (e) {}
+  try {
+    const sv = lsGet('saved');
+    if (sv) state.saved = JSON.parse(sv) || [];
+  } catch (e) {}
+  try {
+    const md = lsGet('mode');
+    if (md) state.mode = md === 'browse' ? 'browse' : 'build';
+  } catch (e) {}
+}
+async function saveCurrent() {
+  lsSet('current', JSON.stringify({ routineName: state.routineName, routine: state.routine }));
+}
+async function saveSaved() {
+  lsSet('saved', JSON.stringify(state.saved));
+}
+async function saveMode() {
+  lsSet('mode', state.mode);
+}
+
+// ============ HELPERS ============
+const $ = sel => document.querySelector(sel);
+const $$ = sel => document.querySelectorAll(sel);
+const findEx = id => EXERCISES.find(e => e.id === id);
+
+function getMuscleHits() {
+  const c = {};
+  ALL_MUSCLES.forEach(m => c[m] = 0);
+  state.routine.forEach(id => {
+    const ex = findEx(id);
+    if (!ex) return;
+    ex.primary.forEach(m => { c[m] = (c[m] || 0) + 2; });
+    ex.secondary.forEach(m => { c[m] = (c[m] || 0) + 1; });
+  });
+  return c;
+}
+function computeFocus() {
+  if (state.routine.length === 0) return '—';
+  const h = getMuscleHits();
+  const groups = {
+    Push: h['Chest'] + h['Front Delts'] + h['Triceps'],
+    Pull: h['Lats'] + h['Upper Back'] + h['Biceps'] + h['Rear Delts'] + h['Traps'],
+    Legs: h['Quads'] + h['Hamstrings'] + h['Glutes'] + h['Calves'],
+    Core: h['Core'] + h['Obliques']
+  };
+  const max = Object.entries(groups).reduce((a,b) => b[1] > a[1] ? b : a, ['—', 0]);
+  return max[1] > 0 ? max[0] : '—';
+}
+function exercisesForMuscle(muscle, mode) {
+  const all = EXERCISES.filter(e => e.primary.includes(muscle) || e.secondary.includes(muscle));
+  if (mode === 'build') {
+    return EXERCISES.filter(e => e.curatedFor && e.curatedFor.includes(muscle));
+  }
+  return all;
+}
+function exerciseCountFor(muscle, mode) {
+  return exercisesForMuscle(muscle, mode).length;
+}
+
+function formatDate(ts) {
+  const d = new Date(ts);
+  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
+// ============ SVG RENDERING ============
+function renderMiniBody(highlightedMuscles, size = 76) {
+  // Build a small SVG with both front+back side by side, with given muscles highlighted
+  const highSet = new Set(highlightedMuscles || []);
+  function pathHighlight(name) {
+    const base = name.replace(/ [LR]$/, '');
+    return highSet.has(base);
+  }
+  let parts = '<svg viewBox="0 0 200 100" class="body-svg" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">';
+  // Front
+  parts += `<g transform="translate(0,0)">`;
+  parts += `<path class="muscle-outline" d="${BODY_PATHS.silhouette}" transform="translate(0,-50) scale(1,0.55) translate(0,50)" />`;
+  // Use a single scale group around silhouette
+  parts += `</g>`;
+  // Better approach: use full 100x200 viewbox, but two svgs side by side
+  parts = `<svg viewBox="0 0 220 200" class="body-svg" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">`;
+  // FRONT
+  parts += `<g transform="translate(0,0)">`;
+  parts += `<path class="muscle-outline" d="${BODY_PATHS.silhouette}" />`;
+  for (const [name, d] of Object.entries(BODY_PATHS.front)) {
+    const hit = pathHighlight(name);
+    parts += `<path class="muscle ${hit ? 'hit-3' : ''}" d="${d}" />`;
+  }
+  parts += `</g>`;
+  // BACK
+  parts += `<g transform="translate(110,0)">`;
+  parts += `<path class="muscle-outline" d="${BODY_PATHS.silhouette}" />`;
+  for (const [name, d] of Object.entries(BODY_PATHS.back)) {
+    const hit = pathHighlight(name);
+    parts += `<path class="muscle ${hit ? 'hit-3' : ''}" d="${d}" />`;
+  }
+  parts += `</g>`;
+  parts += `</svg>`;
+  return parts;
+}
+
+function renderFullBodySVG(side, regionPaths) {
+  // side: 'front' | 'back'
+  const muscles = side === 'front' ? BODY_PATHS.front : BODY_PATHS.back;
+  const hits = getMuscleHits();
+  let svg = `<svg viewBox="0 0 100 200" class="body-svg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">`;
+  svg += `<path class="muscle-outline" d="${BODY_PATHS.silhouette}" />`;
+  for (const [name, d] of Object.entries(muscles)) {
+    const base = name.replace(/ [LR]$/, '');
+    const c = hits[base] || 0;
+    const cls = c >= 5 ? 'hit-3' : c >= 3 ? 'hit-2' : c >= 1 ? 'hit-1' : '';
+    svg += `<path class="muscle ${cls}" data-muscle="${base}" d="${d}" />`;
+  }
+  // region overlays
+  for (const [key, d] of Object.entries(regionPaths)) {
+    svg += `<path class="region" data-region="${key}" d="${d}" />`;
+  }
+  svg += `</svg>`;
+  return svg;
+}
+
+// ============ VIEWS ============
+const stage = () => $('#stage');
+
+function renderHome() {
+  const v = document.createElement('div');
+  v.className = 'view';
+  v.dataset.view = 'home';
+  v.innerHTML = `
+    <div class="body-stage">
+      <div class="body-headline"><strong>TAP A REGION</strong> · drag to spin</div>
+      <div class="body-rotator-wrap">
+        <div class="body-rotator" id="bodyRotator" style="transform: rotateY(${state.bodyAngle}deg)">
+          <div class="body-face front">${renderFullBodySVG('front', FRONT_REGIONS)}</div>
+          <div class="body-face back">${renderFullBodySVG('back', BACK_REGIONS)}</div>
+        </div>
+      </div>
+      <div class="body-controls">
+        <button class="face-btn ${state.bodyAngle % 360 === 0 ? 'active' : ''}" data-face="front">Front</button>
+        <button class="face-btn ${Math.abs(state.bodyAngle % 360) === 180 ? 'active' : ''}" data-face="back">Back</button>
+      </div>
+    </div>
+  `;
+  return v;
+}
+
+function renderRegion(regionKey) {
+  const r = REGIONS[regionKey];
+  if (!r) return null;
+  const v = document.createElement('div');
+  v.className = 'view';
+  v.dataset.view = 'region:' + regionKey;
+  let tilesHtml = '';
+  r.muscles.forEach(m => {
+    const count = exerciseCountFor(m, state.mode);
+    const addedCount = state.routine.filter(id => {
+      const e = findEx(id);
+      return e && (e.primary.includes(m) || e.secondary.includes(m));
+    }).length;
+    tilesHtml += `
+      <button class="muscle-tile" data-muscle="${m}">
+        <div class="thumb">${renderMiniBody([m])}</div>
+        <div class="info">
+          <div class="name">${m}</div>
+          <div class="meta">${count} exercise${count===1?'':'s'}${addedCount ? ` · <span class="added">${addedCount} in session</span>` : ''}</div>
+        </div>
+        <div class="arrow">›</div>
+      </button>
+    `;
+  });
+  v.innerHTML = `
+    <div class="region-view">
+      <div class="region-intro">
+        <h1>${r.name.toUpperCase()}</h1>
+        <p>${r.tagline}</p>
+      </div>
+      <div class="muscle-tiles">${tilesHtml}</div>
+    </div>
+  `;
+  return v;
+}
+
+function renderMuscle(muscle) {
+  const exs = exercisesForMuscle(muscle, state.mode);
+  const v = document.createElement('div');
+  v.className = 'view';
+  v.dataset.view = 'muscle:' + muscle;
+  let cardsHtml = '';
+  if (exs.length === 0) {
+    cardsHtml = `<div class="empty">No exercises in this view.</div>`;
+  } else {
+    exs.forEach(ex => {
+      const added = state.routine.includes(ex.id);
+      const muscleTags = [...ex.primary];
+      cardsHtml += `
+        <button class="ex-card ${added ? 'added' : ''}" data-ex="${ex.id}">
+          <div class="thumb">${renderMiniBody(ex.primary)}</div>
+          <div class="body">
+            <div class="name">${ex.name}</div>
+            <div class="desc">${ex.desc}</div>
+            <div class="tags">
+              <span class="tag" style="color:var(--accent)">${ex.primary.join(' · ')}</span>
+              <span class="tag">${ex.equip}</span>
+            </div>
+          </div>
+          <div class="add-btn">${added ? '✓' : '+'}</div>
+        </button>
+      `;
+    });
+  }
+  v.innerHTML = `
+    <div class="muscle-view">
+      <div class="muscle-intro">
+        <h1>${muscle.toUpperCase()}</h1>
+        <div class="mode-tag"><span class="dot"></span>${state.mode === 'build' ? 'Curated' : 'Browse'} · ${exs.length} exercise${exs.length===1?'':'s'}</div>
+      </div>
+      <div class="exercise-grid">${cardsHtml}</div>
+    </div>
+  `;
+  return v;
+}
+
+function currentNav() { return state.nav[state.nav.length - 1]; }
+
+function buildView(navEntry) {
+  if (navEntry.view === 'home') return renderHome();
+  if (navEntry.view === 'region') return renderRegion(navEntry.key);
+  if (navEntry.view === 'muscle') return renderMuscle(navEntry.key);
+  return renderHome();
+}
+
+function attachViewEvents(v, navEntry) {
+  if (navEntry.view === 'home') {
+    setupBodyRotation(v);
+    v.querySelectorAll('.face-btn').forEach(b => {
+      b.addEventListener('click', () => setFace(b.dataset.face));
+    });
+    v.querySelectorAll('.region').forEach(p => {
+      p.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const key = p.getAttribute('data-region');
+        pushNav({ view: 'region', key });
+      });
+    });
+  } else if (navEntry.view === 'region') {
+    v.querySelectorAll('.muscle-tile').forEach(b => {
+      b.addEventListener('click', () => pushNav({ view: 'muscle', key: b.dataset.muscle }));
+    });
+  } else if (navEntry.view === 'muscle') {
+    v.querySelectorAll('.ex-card').forEach(c => {
+      c.addEventListener('click', () => toggleExercise(c.dataset.ex));
+    });
+  }
+}
+
+function renderTopbar() {
+  const nav = currentNav();
+  $('#backBtn').classList.toggle('hidden', nav.view === 'home');
+  if (nav.view === 'home') {
+    $('#topTitle').innerHTML = `<span>TRAINING<span class="dot">.</span></span><span class="sub">build a session</span>`;
+  } else if (nav.view === 'region') {
+    $('#topTitle').innerHTML = `<span>${REGIONS[nav.key].name.toUpperCase()}</span>`;
+  } else if (nav.view === 'muscle') {
+    $('#topTitle').innerHTML = `<span>${nav.key.toUpperCase()}</span>`;
+  }
+}
+
+function renderBottombar() {
+  const n = state.routine.length;
+  $('#routineBadge').textContent = n;
+  $('#routineBadge').classList.toggle('empty', n === 0);
+  $('#routinePillName').textContent = state.routineName.trim() || 'Untitled Session';
+  $('#routinePillMeta').textContent = n === 0 ? 'tap to view' : `${n} exercise${n===1?'':'s'} · tap to view`;
+}
+
+let isAnimating = false;
+function showView(navEntry, direction = 'replace') {
+  if (isAnimating) return;
+  const stageEl = stage();
+  const oldView = stageEl.querySelector('.view');
+  const newView = buildView(navEntry);
+  if (!newView) return;
+  attachViewEvents(newView, navEntry);
+  stageEl.appendChild(newView);
+
+  if (direction === 'replace') {
+    if (oldView) oldView.remove();
+  } else {
+    isAnimating = true;
+    newView.classList.add(direction === 'forward' ? 'enter-right' : 'enter-left');
+    // force reflow
+    void newView.offsetWidth;
+    requestAnimationFrame(() => {
+      newView.classList.remove('enter-right', 'enter-left');
+      if (oldView) oldView.classList.add(direction === 'forward' ? 'exit-left' : 'exit-right');
+    });
+    setTimeout(() => {
+      if (oldView) oldView.remove();
+      isAnimating = false;
+    }, 360);
+  }
+  renderTopbar();
+  renderBottombar();
+}
+
+function pushNav(entry) {
+  state.nav.push(entry);
+  showView(entry, 'forward');
+}
+function popNav() {
+  if (state.nav.length <= 1) return;
+  state.nav.pop();
+  showView(currentNav(), 'back');
+}
+
+// ============ ACTIONS ============
+function toggleExercise(id) {
+  const i = state.routine.indexOf(id);
+  if (i >= 0) state.routine.splice(i, 1);
+  else state.routine.push(id);
+  saveCurrent();
+  // re-render current view in place to update added states
+  const stageEl = stage();
+  const old = stageEl.querySelector('.view');
+  const fresh = buildView(currentNav());
+  attachViewEvents(fresh, currentNav());
+  stageEl.appendChild(fresh);
+  if (old) old.remove();
+  renderBottombar();
+  renderDrawer();
+}
+
+function setFace(face) {
+  state.bodyAngle = face === 'back' ? 180 : 0;
+  const rot = $('#bodyRotator');
+  if (rot) rot.style.transform = `rotateY(${state.bodyAngle}deg)`;
+  document.querySelectorAll('.face-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.face === face);
+  });
+}
+
+function setMode(mode) {
+  if (state.mode === mode) return;
+  state.mode = mode;
+  saveMode();
+  $('#modeBuild').classList.toggle('active', mode === 'build');
+  $('#modeBrowse').classList.toggle('active', mode === 'browse');
+  // re-render current view to update counts
+  if (currentNav().view !== 'home') {
+    showView(currentNav(), 'replace');
+  }
+  toast(mode === 'build' ? 'Build mode · curated picks' : 'Browse mode · full library');
+}
+
+// ============ BODY ROTATION ============
+function setupBodyRotation(v) {
+  const rot = v.querySelector('#bodyRotator');
+  if (!rot) return;
+  let dragging = false;
+  let startX = 0;
+  let startAngle = 0;
+  let moved = false;
+  const threshold = 8;
+
+  const onStart = (clientX) => {
+    dragging = true;
+    moved = false;
+    startX = clientX;
+    startAngle = state.bodyAngle;
+    rot.classList.add('dragging');
+  };
+  const onMove = (clientX) => {
+    if (!dragging) return;
+    const dx = clientX - startX;
+    if (Math.abs(dx) > threshold) moved = true;
+    const angle = startAngle + dx * 0.6;
+    rot.style.transform = `rotateY(${angle}deg)`;
+    state.bodyAngle = angle;
+  };
+  const onEnd = () => {
+    if (!dragging) return;
+    dragging = false;
+    rot.classList.remove('dragging');
+    // snap to nearest 180
+    const norm = ((state.bodyAngle % 360) + 360) % 360;
+    const target = norm < 90 || norm > 270 ? 0 : 180;
+    state.bodyAngle = target;
+    rot.style.transform = `rotateY(${target}deg)`;
+    document.querySelectorAll('.face-btn').forEach(b => {
+      const isFront = b.dataset.face === 'front';
+      b.classList.toggle('active', (target === 0 && isFront) || (target === 180 && !isFront));
+    });
+    if (moved) {
+      // suppress next region click after a drag
+      v.dataset.suppressClick = '1';
+      setTimeout(() => { delete v.dataset.suppressClick; }, 50);
+    }
+  };
+
+  rot.addEventListener('touchstart', e => onStart(e.touches[0].clientX), { passive: true });
+  rot.addEventListener('touchmove',  e => onMove(e.touches[0].clientX), { passive: true });
+  rot.addEventListener('touchend',   onEnd);
+  rot.addEventListener('mousedown',  e => { onStart(e.clientX); e.preventDefault(); });
+  window.addEventListener('mousemove', e => onMove(e.clientX));
+  window.addEventListener('mouseup',   onEnd);
+
+  // Region clicks: ignore if drag happened
+  rot.querySelectorAll('.region').forEach(p => {
+    p.addEventListener('click', (e) => {
+      if (v.dataset.suppressClick) {
+        e.stopPropagation();
+        e.preventDefault();
+        return;
+      }
+    }, true);
+  });
+}
+
+// ============ DRAWER ============
+function renderDrawer() {
+  const body = $('#drawerBody');
+  $('#routineName').value = state.routineName;
+
+  const hits = getMuscleHits();
+  const hitCount = Object.values(hits).filter(v => v > 0).length;
+  const max = Math.max(1, ...Object.values(hits));
+
+  let html = `
+    <div class="stat-row">
+      <div class="stat"><div class="n">${state.routine.length}</div><div class="l">Exercises</div></div>
+      <div class="stat"><div class="n">${hitCount}</div><div class="l">Muscles</div></div>
+      <div class="stat"><div class="n">${computeFocus()}</div><div class="l">Focus</div></div>
+    </div>
+  `;
+
+  if (state.routine.length === 0) {
+    html += `<div class="empty">No exercises yet. Tap parts of the body to add some.</div>`;
+  } else {
+    html += `<h3>Exercises</h3><div class="r-list">`;
+    state.routine.forEach((id, idx) => {
+      const ex = findEx(id);
+      if (!ex) return;
+      html += `
+        <div class="r-item">
+          <div class="r-num">${String(idx+1).padStart(2,'0')}</div>
+          <div class="r-info">
+            <div class="r-name">${ex.name}</div>
+            <div class="r-muscles">${ex.primary.join(' · ')}</div>
+          </div>
+          <div class="r-actions">
+            <button class="r-btn" data-r-act="up" data-r-idx="${idx}">↑</button>
+            <button class="r-btn" data-r-act="down" data-r-idx="${idx}">↓</button>
+            <button class="r-btn remove" data-r-act="remove" data-r-id="${id}">×</button>
+          </div>
+        </div>
+      `;
+    });
+    html += `</div>`;
+    // muscle bars
+    html += `<h3>Muscle Coverage</h3><div class="muscle-bars">`;
+    const sorted = [...ALL_MUSCLES].sort((a,b) => {
+      const ha = hits[a] || 0, hb = hits[b] || 0;
+      if (ha !== hb) return hb - ha;
+      return a.localeCompare(b);
+    });
+    sorted.forEach(m => {
+      const c = hits[m] || 0;
+      const pct = c > 0 ? Math.max(8, (c / max) * 100) : 0;
+      html += `
+        <div class="m-row ${c > 0 ? 'hit' : ''}">
+          <div class="name">${m}</div>
+          <div class="m-bar"><div class="m-bar-fill" style="width:${pct}%; ${c === 0 ? 'background: var(--surface-2);' : ''}"></div></div>
+          <div class="m-count">${c || ''}</div>
+        </div>
+      `;
+    });
+    html += `</div>`;
+  }
+
+  html += `<div class="drawer-actions">
+    <button class="btn ghost danger" id="drawerClearBtn">Clear</button>
+    <button class="btn primary" id="drawerSaveBtn" ${state.routine.length === 0 ? 'disabled' : ''}>Save Session</button>
+  </div>`;
+
+  if (state.saved.length > 0) {
+    html += `<h3>Saved Sessions</h3><div class="saved-list">`;
+    state.saved.slice().reverse().forEach(s => {
+      html += `
+        <div class="saved-item">
+          <div class="saved-info">
+            <div class="saved-name">${s.name}</div>
+            <div class="saved-meta">${s.ids.length} exercise${s.ids.length===1?'':'s'} · saved ${formatDate(s.savedAt)}</div>
+          </div>
+          <div class="r-actions">
+            <button class="btn ghost" data-saved-act="load" data-saved-id="${s.id}">Load</button>
+            <button class="r-btn remove" data-saved-act="delete" data-saved-id="${s.id}">×</button>
+          </div>
+        </div>
+      `;
+    });
+    html += `</div>`;
+  }
+
+  body.innerHTML = html;
+
+  // wire events
+  body.querySelectorAll('[data-r-act]').forEach(b => {
+    b.addEventListener('click', () => {
+      const act = b.dataset.rAct;
+      if (act === 'remove') {
+        toggleExercise(b.dataset.rId);
+      } else {
+        const idx = parseInt(b.dataset.rIdx, 10);
+        const dir = act === 'up' ? -1 : 1;
+        const newIdx = idx + dir;
+        if (newIdx < 0 || newIdx >= state.routine.length) return;
+        const [item] = state.routine.splice(idx, 1);
+        state.routine.splice(newIdx, 0, item);
+        saveCurrent();
+        renderDrawer();
+        // also refresh main view since order doesn't affect cards, but stats might
+      }
+    });
+  });
+  const clearBtn = body.querySelector('#drawerClearBtn');
+  if (clearBtn) clearBtn.addEventListener('click', clearRoutine);
+  const saveBtn = body.querySelector('#drawerSaveBtn');
+  if (saveBtn) saveBtn.addEventListener('click', saveSession);
+  body.querySelectorAll('[data-saved-act]').forEach(b => {
+    const id = b.dataset.savedId;
+    b.addEventListener('click', () => {
+      if (b.dataset.savedAct === 'load') loadSession(id);
+      else deleteSession(id);
+    });
+  });
+}
+
+function openDrawer() {
+  state.drawerOpen = true;
+  $('#drawer').classList.add('show');
+  $('#drawerBg').classList.add('show');
+  renderDrawer();
+}
+function closeDrawer() {
+  state.drawerOpen = false;
+  $('#drawer').classList.remove('show');
+  $('#drawerBg').classList.remove('show');
+}
+
+function clearRoutine() {
+  if (state.routine.length === 0) return;
+  showModal({
+    title: 'Clear Session?',
+    text: 'This will remove all exercises from your current session.',
+    okLabel: 'Clear',
+    onOk: () => {
+      state.routine = [];
+      state.routineName = '';
+      $('#routineName').value = '';
+      saveCurrent();
+      renderBottombar();
+      renderDrawer();
+      if (currentNav().view !== 'home') showView(currentNav(), 'replace');
+      // refresh home body coverage if visible
+      if (currentNav().view === 'home') showView(currentNav(), 'replace');
+      toast('Session cleared');
+    }
+  });
+}
+
+function saveSession() {
+  if (state.routine.length === 0) return;
+  const defaultName = state.routineName.trim() || `Session ${state.saved.length + 1}`;
+  showModal({
+    title: 'Save Session',
+    text: 'Name this routine to save it.',
+    input: defaultName,
+    okLabel: 'Save',
+    onOk: (name) => {
+      const finalName = (name || '').trim() || defaultName;
+      const session = {
+        id: 'sess-' + Date.now(),
+        name: finalName,
+        ids: [...state.routine],
+        savedAt: Date.now()
+      };
+      state.saved.push(session);
+      saveSaved();
+      renderDrawer();
+      toast(`"${finalName}" saved`);
+    }
+  });
+}
+
+function loadSession(id) {
+  const s = state.saved.find(x => x.id === id);
+  if (!s) return;
+  state.routine = [...s.ids];
+  state.routineName = s.name;
+  $('#routineName').value = s.name;
+  saveCurrent();
+  renderBottombar();
+  renderDrawer();
+  if (currentNav().view !== 'home') showView(currentNav(), 'replace');
+  else showView(currentNav(), 'replace');
+  toast(`Loaded "${s.name}"`);
+}
+function deleteSession(id) {
+  const s = state.saved.find(x => x.id === id);
+  if (!s) return;
+  showModal({
+    title: 'Delete Session?',
+    text: `Remove "${s.name}" from saved sessions?`,
+    okLabel: 'Delete',
+    onOk: () => {
+      state.saved = state.saved.filter(x => x.id !== id);
+      saveSaved();
+      renderDrawer();
+      toast('Deleted');
+    }
+  });
+}
+
+// ============ MODAL & TOAST ============
+let toastTimeout;
+function toast(msg) {
+  const el = $('#toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => el.classList.remove('show'), 1800);
+}
+
+function showModal({ title, text, input, okLabel, onOk }) {
+  $('#modalTitle').textContent = title;
+  $('#modalText').textContent = text;
+  $('#modalOk').textContent = okLabel || 'Confirm';
+  const inp = $('#modalInput');
+  if (input !== undefined) {
+    inp.style.display = 'block';
+    inp.value = input;
+    setTimeout(() => inp.focus(), 60);
+  } else {
+    inp.style.display = 'none';
+  }
+  $('#modalBg').classList.add('show');
+
+  const handleOk = () => { cleanup(); onOk(input !== undefined ? inp.value : undefined); };
+  const handleCancel = () => cleanup();
+  const handleKey = (e) => {
+    if (e.key === 'Enter') handleOk();
+    if (e.key === 'Escape') handleCancel();
+  };
+  function cleanup() {
+    $('#modalBg').classList.remove('show');
+    $('#modalOk').removeEventListener('click', handleOk);
+    $('#modalCancel').removeEventListener('click', handleCancel);
+    document.removeEventListener('keydown', handleKey);
+  }
+  $('#modalOk').addEventListener('click', handleOk);
+  $('#modalCancel').addEventListener('click', handleCancel);
+  document.addEventListener('keydown', handleKey);
+}
+
+// ============ EVENTS ============
+$('#backBtn').addEventListener('click', popNav);
+$('#modeBuild').addEventListener('click', () => setMode('build'));
+$('#modeBrowse').addEventListener('click', () => setMode('browse'));
+$('#routineBtn').addEventListener('click', openDrawer);
+$('#drawerBg').addEventListener('click', closeDrawer);
+$('#drawerHandle').addEventListener('click', closeDrawer);
+$('#routineName').addEventListener('input', (e) => {
+  state.routineName = e.target.value;
+  saveCurrent();
+  renderBottombar();
+});
+$('#modalBg').addEventListener('click', (e) => {
+  if (e.target.id === 'modalBg') $('#modalCancel').click();
+});
+
+// drawer drag-to-close
+(() => {
+  let startY = 0, dragging = false, currentY = 0;
+  const drawer = $('#drawer');
+  const handle = $('#drawerHandle');
+  handle.addEventListener('touchstart', e => {
+    dragging = true; startY = e.touches[0].clientY; currentY = 0;
+    drawer.style.transition = 'none';
+  });
+  handle.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    currentY = Math.max(0, e.touches[0].clientY - startY);
+    drawer.style.transform = `translateY(${currentY}px)`;
+  });
+  handle.addEventListener('touchend', () => {
+    if (!dragging) return;
+    dragging = false;
+    drawer.style.transition = '';
+    drawer.style.transform = '';
+    if (currentY > 80) closeDrawer();
+  });
+})();
+
+// ============ INIT ============
+(async () => {
+  await loadState();
+  $('#modeBuild').classList.toggle('active', state.mode === 'build');
+  $('#modeBrowse').classList.toggle('active', state.mode === 'browse');
+  showView({ view: 'home' }, 'replace');
+  renderTopbar();
+  renderBottombar();
+})();
+</script>
+
+</body>
+</html>
